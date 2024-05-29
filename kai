@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Atualizar o sistema e instalar dependências
+echo "Atualizando o sistema e instalando dependências..."
+sudo apt update
+sudo apt install -y git curl build-essential
+
+# Instalar Node.js e npm
+echo "Instalando Node.js e npm..."
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Verificar instalação do Node.js e npm
+node_version=$(node -v)
+npm_version=$(npm -v)
+echo "Node.js instalado: $node_version"
+echo "npm instalado: $npm_version"
+
+# Clonar o repositório do Uptime Kuma
+echo "Clonando o repositório do Uptime Kuma..."
+git clone https://github.com/louislam/uptime-kuma.git
+cd uptime-kuma
+
+# Instalar dependências do projeto
+echo "Instalando dependências do projeto..."
+npm install
+
+# Construir o projeto
+echo "Construindo o projeto..."
+npm run build
+
+# Instalar pm2 para gerenciamento do processo
+echo "Instalando pm2..."
+sudo npm install -g pm2
+
+# Iniciar o Uptime Kuma com pm2
+echo "Iniciando o Uptime Kuma com pm2..."
+pm2 start server/server.js --name uptime-kuma
+
+# Configurar pm2 para iniciar no boot
+echo "Configurando pm2 para iniciar no boot..."
+pm2 startup
+pm2 save
+
+echo "Uptime Kuma instalado e rodando em segundo plano!"
+echo "Acesse o Uptime Kuma em http://localhost:3001"
